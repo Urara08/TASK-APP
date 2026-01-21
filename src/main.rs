@@ -5,7 +5,6 @@ use std::io;//標準入力用
 
 
 use std::fs::OpenOptions;//ファイル追記用
-
 use std::io::{Read, Write, BufWriter};//ファイル
 
 mod register;//新規タスク登録用モジュール 宣言
@@ -18,7 +17,9 @@ fn main(){
 let mut f:File= File::open("src/data.rs").unwrap();
 
 let mut contents = String::new();
+//ファイルの最初から読む
 
+//ファイルの内容を1行ずつ読み込む
 f.read_to_string(&mut contents).unwrap();
 
 
@@ -44,7 +45,7 @@ Service_type.trim().to_string().parse::<u32>().unwrap();
 println!("{}",Service_type);
 
 if Service_type.trim() == "0"{
-    println!("新規タスクを入力してください");
+println!("新規タスクを入力してください");
 //タスクの登録へ
 
 let mut Register_name = String::new();
@@ -54,31 +55,13 @@ Register_name.trim().to_string().parse::<String>().unwrap();
 
 //Register_nameをdata.rsに追記する処理へ
 let mut f:File= File::open("src/data.rs").unwrap();
-//ファイル末尾を確認して、必要なら改行する
-
-    let mut last_char = None;
-    {
-        let mut f = std::fs::File::open("src/data.rs").unwrap();
-        let mut buf = Vec::new();
-        f.read_to_end(&mut buf).unwrap();
-        if let Some(&b) = buf.last() {
-            last_char = Some(b);
-        }
-    }
-
 
 let mut f = OpenOptions::new()
 .write(true)      // 書き込み可能にする
 .append(true)     // 追記モードにする
 .open("src/data.rs").expect("ファイルを開けませんでした");
-let mut bw = BufWriter::new(f);
 
-// 改行が無ければ入れる
-if last_char != Some(b'\n') && last_char.is_some() {
-    writeln!(bw).unwrap();
-}
-
-writeln!(bw, "{}", Register_name).unwrap();
+write!(f, "\n{}", Register_name).unwrap();
 println!("新規タスクの登録が完了しました");
 
 
