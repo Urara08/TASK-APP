@@ -1,7 +1,6 @@
 use std::fs::File;//ファイル操作用
 use std::io::prelude::*;//ファイルの入出力用
 use std::io;//標準入力用
-
 use std::fs::OpenOptions;//ファイル追記用
 use std::io::{Read, Write, BufWriter};//ファイル
 
@@ -21,22 +20,22 @@ let mut contents = String::new();
 f.read_to_string(&mut contents).unwrap();
 
 //改行でVec<String>に分割
-let lines: Vec<String> = contents
+let mut lines: Vec<String> = contents
 .lines()
-.filter(|line| !line.trim().is_empty()) // ← ★ 空行を除外
+.filter(|&line| !&line.trim().is_empty()) // ← ★ 空行を除外
 .map(String::from)
 .collect();
 
 
 //未完了タスクの表示
-if contents.len() == 0 {
+if lines.len() == 0 {
     println!("未完了タスクはありません\n処理を選択してください\n(０:新規タスク登録、１:タスクの完了)");}
     else{
         println!("処理を選択してください\n(０:新規タスク登録、１:タスクの完了)");
     }
 
-//ナンバリングしたcontentsを表示(Rust Vec 自動でナンバリング?)
-    for (index, line) in &mut lines.into_iter().enumerate() {
+//ナンバリングしたlinesを表示(Rust Vec 自動でナンバリング?)
+    for (index, line) in &mut lines.clone().into_iter().enumerate()  {
 
     let line = line; // contentsから文字列を取り出す
     println!("{}: {}", index + 1, line); // 行番号 (1から開始) と行文字列を出力
@@ -71,7 +70,9 @@ println!("新規タスクの登録が完了しました");
 
 }else if
 //タスクの削除へ
-    Service_type.trim() == "1" && contents.len() != 0{
+//処理中
+
+    Service_type.trim() == "1" && lines.len() != 0{
         println!("完了したタスク番号を入力してください");
         let mut task_number = String::new();
         io::stdin().read_line(&mut task_number).unwrap();
