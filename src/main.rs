@@ -3,6 +3,16 @@ use std::fs::File;//ファイル操作用
 use std::io::prelude::*;//ファイルの入出力用
 use std::io;//標準入力用
 
+
+use std::fs::OpenOptions;//ファイル追記用
+
+use std::io::{Read, Write, BufWriter};//ファイル
+
+mod register;//新規タスク登録用モジュール 宣言
+mod delete;//タスク削除用モジュール 宣言
+//use crate::register::呼び出す関数名;
+//use crate::delete::呼び出す関数名;
+
 fn main(){
 
 let mut f:File= File::open("src/data.rs").unwrap();
@@ -20,12 +30,13 @@ if contents.len() == 0 {
     }
 
 //ナンバリングしたcontentsを表示(Rust Vec 自動でナンバリング?)
-//
     for (index, line) in &mut contents.lines().enumerate() {
-        let line = line; // contentsから文字列を取り出す
-        println!("{}: {}", index + 1, line); // 行番号 (1から開始) と行文字列を出力
+
+    let line = line; // contentsから文字列を取り出す
+    println!("{}: {}", index + 1, line); // 行番号 (1から開始) と行文字列を出力
     }
 
+//処理番号を入力
 let mut Service_type = String::new();
 io::stdin().read_line(&mut Service_type).unwrap();
 
@@ -33,15 +44,67 @@ Service_type.trim().to_string().parse::<u32>().unwrap();
 println!("{}",Service_type);
 
 if Service_type.trim() == "0"{
-    println!("新規タスクを入力してください");}else if 
+    println!("新規タスクを入力してください");
+//タスクの登録へ
 
+let mut Register_name = String::new();
+io::stdin().read_line(&mut Register_name).unwrap();
+Register_name.trim().to_string().parse::<String>().unwrap();
+
+
+//Register_nameをdata.rsに追記する処理へ
+let mut f:File= File::open("src/data.rs").unwrap();
+//ファイル末尾を確認して、必要なら改行する
+
+    let mut last_char = None;
+    {
+        let mut f = std::fs::File::open("src/data.rs").unwrap();
+        let mut buf = Vec::new();
+        f.read_to_end(&mut buf).unwrap();
+        if let Some(&b) = buf.last() {
+            last_char = Some(b);
+        }
+    }
+
+
+let mut f = OpenOptions::new()
+.write(true)      // 書き込み可能にする
+.append(true)     // 追記モードにする
+.open("src/data.rs").expect("ファイルを開けませんでした");
+let mut bw = BufWriter::new(f);
+
+// 改行が無ければ入れる
+if last_char != Some(b'\n') && last_char.is_some() {
+    writeln!(bw).unwrap();
+}
+
+writeln!(bw, "{}", Register_name).unwrap();
+println!("新規タスクの登録が完了しました");
+
+
+}else if 
+//タスクの削除へ
     Service_type.trim() == "1" && contents.len() != 0{
         println!("完了したタスク番号を入力してください");
         let mut task_number = String::new();
         io::stdin().read_line(&mut task_number).unwrap();
-        
+
         task_number.trim().to_string().parse::<u32>().unwrap();
-        println!("{}",task_number);}else{
+        println!("{}",task_number);
+
+
+
+
+
+
+
+
+
+
+
+
+    }else{
+//未完了タスクがない場合
             println!("未完了のタスクはありません");
             return;
         }
