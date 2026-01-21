@@ -15,9 +15,10 @@ let mut f:File= File::open("src/data.txt").unwrap();
 
 let mut contents = String::new();
 
-
 //ファイルの内容を1行ずつ読み込む
 f.read_to_string(&mut contents).unwrap();
+
+let mut lines: Vec<String> = Vec::new();
 
 //改行でVec<String>に分割
 let mut lines: Vec<String> = contents
@@ -36,9 +37,8 @@ if lines.len() == 0 {
 
 //ナンバリングしたlinesを表示(Rust Vec 自動でナンバリング?)
     for (index, line) in &mut lines.clone().into_iter().enumerate()  {
-
-    let line = line; // contentsから文字列を取り出す
-    println!("{}: {}", index + 1, line); // 行番号 (1から開始) と行文字列を出力
+    let line = line; // linesから文字列を取り出す
+    println!("{}:{}", index + 1, line); // 行番号 (1から開始) と行文字列を出力
     }
 
 //処理番号を入力
@@ -77,9 +77,29 @@ println!("新規タスクの登録が完了しました");
         let mut task_number = String::new();
         io::stdin().read_line(&mut task_number).unwrap();
 
-        task_number.trim().to_string().parse::<u32>().unwrap();
-        println!("{}",task_number);
 
+        let task_index = task_number.trim().parse::<usize>().unwrap() - 1;
+        //println!("{}",task_index);
+
+        //指定されたタスクを削除する処理へ
+
+        let mut f = File::open("src/data.txt").unwrap();
+        if lines.len() > task_index{
+            lines.remove(task_index);
+            println!("削除後Vec{:?}",&lines);//Vecが正しい状態かデバック用に確認
+            //ファイルを一旦空にする
+            let mut f = BufWriter::new(File::create("src/data.txt").unwrap());
+
+            let mut f = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open("src/data.txt")
+            .expect("ファイルを開けませんでした");
+
+            writeln!(f, "{}", &lines.join("\n")).unwrap();
+            println!("タスクの削除が完了しました");
+
+        }else {println!("エラー: 指定された番号は範囲外です");}
 
 
     }else{
@@ -88,5 +108,4 @@ println!("新規タスクの登録が完了しました");
             return;
         }
 }
-
 
